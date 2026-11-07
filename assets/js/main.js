@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  const TOOLS_REGISTRY = [
+  const TOOLS_REGISTRY = window.toolnestTools && window.toolnestTools.length ? window.toolnestTools : [
     {
       id: 'bijoy-to-unicode',
       name: 'Bijoy to Unicode Converter',
@@ -565,10 +565,11 @@
       });
 
       if (matches.length === 0) {
+        const toolsUrl = window.toolnestToolsUrl || '/all-tools/';
         resultsBox.innerHTML =
           '<div class="p-3 text-muted small">No tools found for "' +
           escapeHtml(query) +
-          '". <a href="/tools/index.html" class="fw-semibold">Browse all tools</a></div>';
+          '". <a href="' + escapeHtml(toolsUrl) + '" class="fw-semibold">Browse all tools</a></div>';
         resultsBox.classList.add('is-open');
         return;
       }
@@ -616,81 +617,164 @@
 
   function initHeaderMenu() {
     const nav = document.querySelector('.tn-header .navbar-nav');
-    const brand = document.querySelector('.tn-header__brand');
-    const allToolsLink = nav && Array.prototype.find.call(nav.querySelectorAll('.tn-header__nav-link'), function (link) {
-      return link.textContent.trim().toLowerCase() === 'all tools';
+    if (!nav) return;
+
+    const megaItems = Array.prototype.filter.call(nav.children, function (item) {
+      return item.classList.contains('tn-mega-menu-enabled');
     });
-    if (!nav || !brand || !allToolsLink || nav.querySelector('.tn-header__mega-item')) return;
 
-    const homeUrl = new URL(brand.getAttribute('href'), window.location.href);
-    const siteRoot = new URL('.', homeUrl);
-    const toolsUrl = new URL('tools/index.html', siteRoot);
-    const categories = [
-      { name: 'Converters', slug: 'converters', icon: 'bi-arrow-left-right', description: 'Convert text, numbers, and everyday formats.' },
-      { name: 'Developers', slug: 'developers', icon: 'bi-code-slash', description: 'Handy utilities for code and websites.' },
-      { name: 'Image', slug: 'image', icon: 'bi-image', description: 'Edit, resize, and enhance images.' },
-      { name: 'PDF', slug: 'pdf', icon: 'bi-file-earmark-pdf', description: 'Work with PDF files in your browser.' },
-      { name: 'Text', slug: 'text', icon: 'bi-text-paragraph', description: 'Format, count, and create text.' },
-      { name: 'Business', slug: 'business', icon: 'bi-briefcase', description: 'Create useful business documents and links.' }
-    ];
-    const categoryMarkup = categories.map(function (category) {
-      const count = TOOLS_REGISTRY.filter(function (tool) {
-        return tool.category.toLowerCase() === category.name.toLowerCase();
-      }).length;
-      const href = new URL(toolsUrl.href);
-      href.searchParams.set('category', category.slug);
-      return '<a class="tn-mega-menu__category" href="' + escapeHtml(href.href) + '">' +
-        '<span class="tn-mega-menu__icon"><i class="bi ' + category.icon + '" aria-hidden="true"></i></span>' +
-        '<span class="tn-mega-menu__copy"><span class="tn-mega-menu__name">' + category.name +
-        '<span class="tn-mega-menu__count">' + count + '</span></span>' +
-        '<span class="tn-mega-menu__description">' + category.description + '</span></span>' +
-        '<i class="bi bi-arrow-up-right tn-mega-menu__arrow" aria-hidden="true"></i></a>';
-    }).join('');
+    megaItems.forEach(function (item, index) {
+      const parentLink = Array.prototype.find.call(item.children, function (child) {
+        return child.matches('a');
+      });
+      const submenu = Array.prototype.find.call(item.children, function (child) {
+        return child.classList.contains('sub-menu');
+      });
 
-    const item = document.createElement('li');
-    item.className = 'nav-item tn-header__mega-item';
-    item.innerHTML =
-      '<button class="nav-link tn-header__nav-link tn-header__mega-toggle" type="button" aria-expanded="false" aria-controls="tnToolsMegaMenu">' +
-      '<i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i><span>Explore</span>' +
-      '<i class="bi bi-chevron-down tn-header__mega-chevron" aria-hidden="true"></i></button>' +
-      '<div class="tn-mega-menu" id="tnToolsMegaMenu" aria-label="Explore tools">' +
-      '<div class="tn-mega-menu__heading"><div><span class="tn-mega-menu__eyebrow">TOOLNEST DIRECTORY</span>' +
-      '<h2>Find the right tool</h2><p>Fast, free tools that keep your work private.</p></div>' +
-      '<a class="tn-mega-menu__browse" href="' + escapeHtml(toolsUrl.href) + '">Browse all tools <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>' +
-      '<div class="tn-mega-menu__grid">' + categoryMarkup + '</div>' +
-      '<div class="tn-mega-menu__footer"><i class="bi bi-shield-check" aria-hidden="true"></i> Your files stay on your device</div></div>';
+      if (!parentLink || !submenu) return;
 
-    const toggle = item.querySelector('.tn-header__mega-toggle');
-    const menu = item.querySelector('.tn-mega-menu');
-    toggle.addEventListener('click', function () {
-      const isOpen = item.classList.toggle('is-open');
-      toggle.setAttribute('aria-expanded', String(isOpen));
-    });
-    menu.addEventListener('click', function (event) {
-      if (event.target.closest('a')) {
-        item.classList.remove('is-open');
-        toggle.setAttribute('aria-expanded', 'false');
-        const collapse = nav.closest('.navbar-collapse');
-        if (collapse && collapse.classList.contains('show') && window.bootstrap && window.bootstrap.Collapse) {
-          const instance = window.bootstrap.Collapse.getInstance(collapse);
-          if (instance) instance.hide();
+      const submenuItems = Array.prototype.filter.call(submenu.children, function (child) {
+        return child.matches('li');
+      }).map(function (child) {
+        return Array.prototype.find.call(child.children, function (link) {
+          return link.matches('a');
+        });
+      }).filter(Boolean);
+
+      if (submenuItems.length === 0) return;
+
+      const label = parentLink.textContent.trim();
+      const toggle = document.createElement('button');
+      const panelId = 'tnToolsMegaMenu-' + (index + 1);
+      toggle.type = 'button';
+      toggle.className = 'nav-link tn-header__nav-link tn-header__mega-toggle';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-controls', panelId);
+
+      const toggleIcon = document.createElement('i');
+      toggleIcon.className = 'bi bi-grid-3x3-gap-fill';
+      toggleIcon.setAttribute('aria-hidden', 'true');
+      const toggleLabel = document.createElement('span');
+      toggleLabel.textContent = label;
+      const chevron = document.createElement('i');
+      chevron.className = 'bi bi-chevron-down tn-header__mega-chevron';
+      chevron.setAttribute('aria-hidden', 'true');
+      toggle.append(toggleIcon, toggleLabel, chevron);
+
+      const panel = document.createElement('div');
+      panel.className = 'tn-mega-menu';
+      panel.id = panelId;
+      panel.setAttribute('aria-label', label + ' menu');
+
+      const heading = document.createElement('div');
+      heading.className = 'tn-mega-menu__heading';
+      const headingCopy = document.createElement('div');
+      const eyebrow = document.createElement('span');
+      eyebrow.className = 'tn-mega-menu__eyebrow';
+      eyebrow.textContent = 'TOOLNEST DIRECTORY';
+      const title = document.createElement('h2');
+      title.textContent = 'Find the right tool';
+      const description = document.createElement('p');
+      description.textContent = 'Fast, free tools that keep your work private.';
+      headingCopy.append(eyebrow, title, description);
+
+      const browseLink = document.createElement('a');
+      browseLink.className = 'tn-mega-menu__browse';
+      browseLink.href = parentLink.href;
+      browseLink.append(document.createTextNode('View ' + label + ' '));
+      const browseIcon = document.createElement('i');
+      browseIcon.className = 'bi bi-arrow-right';
+      browseIcon.setAttribute('aria-hidden', 'true');
+      browseLink.appendChild(browseIcon);
+      heading.append(headingCopy, browseLink);
+
+      const grid = document.createElement('div');
+      grid.className = 'tn-mega-menu__grid';
+      submenuItems.forEach(function (submenuLink) {
+        const card = document.createElement('a');
+        card.className = 'tn-mega-menu__category';
+        card.href = submenuLink.href;
+
+        const iconWrap = document.createElement('span');
+        iconWrap.className = 'tn-mega-menu__icon';
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-arrow-right';
+        icon.setAttribute('aria-hidden', 'true');
+        iconWrap.appendChild(icon);
+
+        const copy = document.createElement('span');
+        copy.className = 'tn-mega-menu__copy';
+        const name = document.createElement('span');
+        name.className = 'tn-mega-menu__name';
+        name.textContent = submenuLink.textContent.trim();
+        copy.appendChild(name);
+
+        const itemDescription = submenuLink.getAttribute('title');
+        if (itemDescription && itemDescription !== name.textContent) {
+          const descriptionText = document.createElement('span');
+          descriptionText.className = 'tn-mega-menu__description';
+          descriptionText.textContent = itemDescription;
+          copy.appendChild(descriptionText);
         }
-      }
+
+        const arrow = document.createElement('i');
+        arrow.className = 'bi bi-arrow-up-right tn-mega-menu__arrow';
+        arrow.setAttribute('aria-hidden', 'true');
+        card.append(iconWrap, copy, arrow);
+        grid.appendChild(card);
+      });
+
+      const footer = document.createElement('div');
+      footer.className = 'tn-mega-menu__footer';
+      const footerIcon = document.createElement('i');
+      footerIcon.className = 'bi bi-shield-check';
+      footerIcon.setAttribute('aria-hidden', 'true');
+      footer.append(footerIcon, document.createTextNode(' Your files stay on your device'));
+
+      panel.append(heading, grid, footer);
+      parentLink.replaceWith(toggle);
+      submenu.remove();
+      item.classList.add('tn-header__mega-item');
+      item.appendChild(panel);
+
+      toggle.addEventListener('click', function () {
+        const isOpen = item.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        if (isOpen) {
+          megaItems.forEach(function (otherItem) {
+            if (otherItem !== item) {
+              otherItem.classList.remove('is-open');
+              const otherToggle = otherItem.querySelector('.tn-header__mega-toggle');
+              if (otherToggle) otherToggle.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+      });
+      panel.addEventListener('click', function (event) {
+        if (event.target.closest && event.target.closest('a')) {
+          item.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+          const collapse = nav.closest('.navbar-collapse');
+          if (collapse && collapse.classList.contains('show') && window.bootstrap && window.bootstrap.Collapse) {
+            const instance = window.bootstrap.Collapse.getInstance(collapse);
+            if (instance) instance.hide();
+          }
+        }
+      });
+      document.addEventListener('click', function (event) {
+        if (!item.contains(event.target)) {
+          item.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && item.classList.contains('is-open')) {
+          item.classList.remove('is-open');
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.focus();
+        }
+      });
     });
-    document.addEventListener('click', function (event) {
-      if (!item.contains(event.target)) {
-        item.classList.remove('is-open');
-        toggle.setAttribute('aria-expanded', 'false');
-      }
-    });
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && item.classList.contains('is-open')) {
-        item.classList.remove('is-open');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.focus();
-      }
-    });
-    nav.insertBefore(item, allToolsLink.closest('.nav-item').nextSibling);
   }
 
   function initGridFiltering() {
@@ -806,7 +890,10 @@
       const href = (link.getAttribute('href') || '').toLowerCase();
       if (href.endsWith('/toolnest/index.html') && (path.endsWith('/toolnest/index.html') || path === '/')) {
         link.classList.add('active');
-      } else if (href.endsWith('/tools/index.html') && path.includes('/tools/')) {
+      } else if (
+        (href.endsWith('/tools/index.html') && path.includes('/tools/')) ||
+        (href.endsWith('/all-tools/') && path.endsWith('/all-tools/'))
+      ) {
         link.classList.add('active');
       } else if (href.endsWith('/pages/contact.html') && path.endsWith('/pages/contact.html')) {
         link.classList.add('active');
