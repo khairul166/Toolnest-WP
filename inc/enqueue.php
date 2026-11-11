@@ -24,12 +24,18 @@ function toolnest_enqueue_assets()
         [],
         '1.11.3'
     );
+    wp_enqueue_style(
+        'toolnest-fontawesome',
+        'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css',
+        [],
+        '6.5.2'
+    );
 
     $stylesheet_path = get_theme_file_path('/assets/css/main.css');
     wp_enqueue_style(
         'toolnest-main',
         get_theme_file_uri('/assets/css/main.css'),
-        ['toolnest-google-fonts', 'toolnest-bootstrap', 'toolnest-bootstrap-icons'],
+        ['toolnest-google-fonts', 'toolnest-bootstrap', 'toolnest-bootstrap-icons', 'toolnest-fontawesome'],
         filemtime($stylesheet_path)
     );
 

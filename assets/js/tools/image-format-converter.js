@@ -400,7 +400,7 @@
       cleanupConverted();
       const cfg = {
         targetFormat: targetFormatSelect.value || 'image/jpeg',
-        quality: Math.min(1, Math.max(0.1, Number(qualitySlider.value) / 100)),
+        quality: Math.min(1, Math.max(0.05, Number(qualitySlider.value) / 100)),
         fillWhiteBg: Boolean(fillWhiteCheck && fillWhiteCheck.checked),
         bgColor: bgColorInput ? bgColorInput.value : '#FFFFFF'
       };

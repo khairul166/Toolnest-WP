@@ -86,6 +86,11 @@ $tool_cards_query = new WP_Query([
           $tool_category_name = $tool_category ? $tool_category->name : '';
           $tool_icon = get_post_meta(get_the_ID(), '_toolnest_tool_icon', true);
           $tool_keywords = get_post_meta(get_the_ID(), '_toolnest_tool_keywords', true);
+          $tool_tags = get_the_terms(get_the_ID(), 'tool_tag');
+          if (!is_wp_error($tool_tags) && !empty($tool_tags)) {
+              $tag_names = implode(', ', wp_list_pluck($tool_tags, 'name'));
+              $tool_keywords = $tool_keywords ? $tool_keywords . ', ' . $tag_names : $tag_names;
+          }
           ?>
           <div class="col-12 col-md-6 col-lg-4" data-tn-tool-card
             data-tn-category="<?php echo esc_attr($tool_category_slug); ?>"

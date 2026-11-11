@@ -4247,7 +4247,7 @@ function tn_image_format_converter_shortcode() {
                     <label for="tn-ifc-quality" class="form-label fw-bold small mb-0">JPG / WebP Quality</label>
                     <span id="tn-ifc-quality-val" class="badge bg-primary">88%</span>
                   </div>
-                  <input type="range" id="tn-ifc-quality" class="form-range" min="15" max="100" step="1" value="88">
+                  <input type="range" id="tn-ifc-quality" class="form-range" min="5" max="100" step="1" value="88">
                 </div>
 
                 <div class="col-sm-12 col-md-3">
