@@ -52,11 +52,13 @@ function toolnest_enqueue_assets()
 
 
 
-    // wp_add_inline_script(
-    //     'toolnest-main',
-    //     'window.toolnestToolsUrl = ' . wp_json_encode(get_permalink(get_page_by_path('all-tools'))) . ';',
-    //     'before'
-    // );
+    $all_tools_page = get_page_by_path('all-tools');
+    $all_tools_url = $all_tools_page ? get_permalink($all_tools_page) : home_url('/all-tools/');
+    wp_add_inline_script(
+        'toolnest-main',
+        'window.toolnestToolsUrl = ' . wp_json_encode($all_tools_url) . ';',
+        'before'
+    );
 
     // $tool_posts = get_posts([
     //     'post_type' => 'tool',

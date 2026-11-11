@@ -108,6 +108,15 @@ function toolnest_primary_menu_link_classes($atts, $item, $args)
         $atts['class'] = isset($atts['class'])
             ? $atts['class'] . ' nav-link tn-header__nav-link'
             : 'nav-link tn-header__nav-link';
+
+        if ('taxonomy' === $item->type && 'tool_category' === $item->object) {
+            $term = get_term((int) $item->object_id, 'tool_category');
+            $all_tools_page = get_page_by_path('all-tools');
+
+            if ($term instanceof WP_Term && $all_tools_page) {
+                $atts['href'] = add_query_arg('category', $term->slug, get_permalink($all_tools_page));
+            }
+        }
     }
 
     return $atts;
