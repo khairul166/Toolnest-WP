@@ -184,7 +184,6 @@ function toolnest_get_fontawesome_icons()
         ['class' => 'fa-solid fa-file-zipper', 'label' => 'ZIP / Archive File', 'style' => 'solid', 'keywords' => 'compress zip batch archive'],
         ['class' => 'fa-regular fa-file-zipper', 'label' => 'ZIP File (Regular)', 'style' => 'regular', 'keywords' => 'zip archive'],
         ['class' => 'fa-solid fa-file-shield', 'label' => 'Protect File / PDF', 'style' => 'solid', 'keywords' => 'protect pdf encrypt password lock'],
-        ['class' => 'fa-solid fa-file-Lines', 'label' => 'Text Document', 'style' => 'solid', 'keywords' => 'file text document'],
         ['class' => 'fa-solid fa-file-lines', 'label' => 'Document Lines', 'style' => 'solid', 'keywords' => 'text file robots doc'],
         ['class' => 'fa-regular fa-file-lines', 'label' => 'Document (Regular)', 'style' => 'regular', 'keywords' => 'text file doc'],
         ['class' => 'fa-solid fa-file-invoice', 'label' => 'Invoice File', 'style' => 'solid', 'keywords' => 'invoice bill receipt'],

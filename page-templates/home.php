@@ -122,7 +122,7 @@ get_header(); ?>
                       data-tn-keywords="<?php echo esc_attr($tool_keywords); ?>">
                       <article class="tn-tool-card">
                         <div class="d-flex justify-content-between align-items-start">
-                          <div class="tn-tool-card__icon"><i class="bi <?php echo esc_attr($tool_icon); ?>" aria-hidden="true"></i></div>
+                          <div class="tn-tool-card__icon"><i class="<?php echo esc_attr(toolnest_get_tool_icon_class($tool_icon)); ?>" aria-hidden="true"></i></div>
                           <?php if ($tool_category_name) : ?>
                             <span class="tn-tool-card__badge"><?php echo esc_html($tool_category_name); ?></span>
                           <?php endif; ?>
